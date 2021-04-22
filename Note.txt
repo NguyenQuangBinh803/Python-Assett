@@ -1,1 +1,3 @@
-This file intergrity has been ruined by me, the author of it. As the fact that I want to start with the basis, foundation of Python Implementation such as built-in uses, mathematic model, control system model, design pattern, libraries implementation, Algorithm, Networking and Web Service
+This file intergrity has been ruined by me, the author of it. 
+
+As the fact that I want to start with the basis, foundation of Python Implementation such as built-in uses, mathematic model, control system model, design pattern, libraries implementation, Algorithm, Networking and Web Service
