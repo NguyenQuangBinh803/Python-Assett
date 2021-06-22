@@ -1,19 +1,264 @@
+import numpy as np
+
+
+
+
+N_BYTE_SEND_SIZE_MAX =	30000		# ‘—MÅ‘åƒTƒCƒY [Byte] */
+N_BYTE_MEC_SEND_SIZE_MAX =	1024	# ƒƒJ‘—MÅ‘åƒTƒCƒY [Byte] */
+
+
+
+# /*******************************************************************************
+# 	éŒ¾
+# *******************************************************************************/
+
+RPL_SCALING_FIX = 0             #	/* w’èƒXƒP[ƒŠƒ“ƒO					*/
+RPL_SCALING_AUTO = 1            #	/* ƒI[ƒgƒXƒP[ƒŠƒ“ƒO					*/
+RPL_DIST_BILINEAR = 2           #	/* ˜c‚İƒAƒ‰ƒCƒƒ“ƒg(©—R•ÏŒ`A‘äŒ`)	*/
+RPL_DIST_AFFINE = 3             #	/* ˜c‚İƒAƒ‰ƒCƒƒ“ƒg(•½sl•ÓŒ`)		*/
+
+RPL_NON_ALIGNMENT = 0           #	/* ƒAƒ‰ƒCƒƒ“ƒg–³‚µ */
+RPL_PLANE_MODE = 1          #	/* ˆêŠ‡ƒAƒ‰ƒCƒƒ“ƒg */
+RPL_DIV_MODE = 2            #	/* •ªŠ„ƒAƒ‰ƒCƒƒ“ƒg */
+
+RPL_SCL_INDIVIDUAL = 0          #	/* ŒÂ•Ğ—Ìˆæ“Æ—§”{—¦(Šî”Â’[—Ìˆæ‚ÍRPL_SCL_PLANE‚Æ“¯‚¶) */
+RPL_SCL_AVE_AREA = 1            #	/* ŒÂ•Ğ—Ìˆæ”{—¦•½‹Ï	*/
+RPL_SCL_PLANE = 2           #	/* Šî”Â”{—¦			*/
+
+
+#------------------------------
+#	ƒAƒ‰ƒCƒƒ“ƒg
+#------------------------------
+#[S] TP#1907 LDICƒ}[ƒN”F¯ƒpƒ‰ƒ[ƒ^’²®
+MAX_PRIORITY_NUM =		10													# #ƒ}[ƒNƒTƒuID”  #TP#2357 ƒ}ƒ‹ƒ`ƒeƒ“ƒvƒŒ[ƒg‚ÌƒTƒuƒ}[ƒNŒÂ”Šg’£ (5 -> 10)
+#[E] TP#1907 LDICƒ}[ƒN”F¯ƒpƒ‰ƒ[ƒ^’²®
+#[S] TP#2311 –{‘ÌFƒpƒ^[ƒ“ƒAƒ‰ƒCƒƒ“ƒg‘Î‰ STEP1
+MAX_TEMPLATE_MARK_NUM =	400													# ƒeƒ“ƒvƒŒ[ƒg‰æ‘œ‚ÌÅ‘å”(#Windows”ÅALN‚ÌALN_MAX_MARK_NUM‚É‡‚í‚¹‚Ä‚¢‚é) 
+#[E] TP#2311 –{‘ÌFƒpƒ^[ƒ“ƒAƒ‰ƒCƒƒ“ƒg‘Î‰ STEP1
+
+PRECISION_PRIORITY_NUM =	5						#[S] TP#2519 –{‘ÌFƒ}ƒ‹ƒ`ƒeƒ“ƒvƒŒ[ƒg‚ÌƒTƒuƒ}[ƒNŒÂ”Šg’£_QVƒŒƒXNG										# ¸“x•]‰¿—pƒ}[ƒNƒTƒuID”(5ŒÅ’è) #¦PEC‚Å‚ÌŒ‹‡ˆ—ˆÈ~‚Åg—p‚·‚éB 
+
+
+MAX_ALIGN_DIV =			2000							
+#------------------------------
+#[S] TP#1907 LDICƒ}[ƒN”F¯ƒpƒ‰ƒ[ƒ^’²®
+MAX_PRIORITY_NUM =		10													# #ƒ}[ƒNƒTƒuID”  #TP#2357 ƒ}ƒ‹ƒ`ƒeƒ“ƒvƒŒ[ƒg‚ÌƒTƒuƒ}[ƒNŒÂ”Šg’£ (5 -> 10)
+#[E] TP#1907 LDICƒ}[ƒN”F¯ƒpƒ‰ƒ[ƒ^’²®
+#[S] TP#2311 –{‘ÌFƒpƒ^[ƒ“ƒAƒ‰ƒCƒƒ“ƒg‘Î‰ STEP1
+MAX_TEMPLATE_MARK_NUM =	400													# ƒeƒ“ƒvƒŒ[ƒg‰æ‘œ‚ÌÅ‘å”(#Windows”ÅALN‚ÌALN_MAX_MARK_NUM‚É‡‚í‚¹‚Ä‚¢‚é) 
+#[E] TP#2311 –{‘ÌFƒpƒ^[ƒ“ƒAƒ‰ƒCƒƒ“ƒg‘Î‰ STEP1
+
+PRECISION_PRIORITY_NUM =	5						#[S] TP#2519 –{‘ÌFƒ}ƒ‹ƒ`ƒeƒ“ƒvƒŒ[ƒg‚ÌƒTƒuƒ}[ƒNŒÂ”Šg’£_QVƒŒƒXNG										# ¸“x•]‰¿—pƒ}[ƒNƒTƒuID”(5ŒÅ’è) #¦PEC‚Å‚ÌŒ‹‡ˆ—ˆÈ~‚Åg—p‚·‚éB 
+
+
+MAX_ALIGN_DIV =			2000												# #Å‘å•ªŠ„” 
+#[S] #1453 ‘½“_ƒAƒ‰ƒCƒƒ“ƒg‘Î‰
+MAX_MARK_NUM_DIVIDE_AREA_PIECE =	4											# #piece•ªŠ„—Ìˆæ“à‚ÌÅ‘åƒ}[ƒN” 
+
+MAX_MARK_NUM_DIVIDE_AREA =800													# #•ªŠ„—Ìˆæ“à‚ÌÅ‘åƒ}[ƒN” 
+MAX_MARK_NUM =			( MAX_ALIGN_DIV * 4 )								# Å‘åƒ}[ƒN” : 2000 ~ #4‚Å‹LÚ‚µ‚Ä‚¨‚­ 
+
+MAX_ALIGN_DIV_MULTI =		200													# #Å‘å•ªŠ„” 
+MAX_MARK_NUM_MULTI =		800													# #Å‘åƒ}[ƒNŒÂ” 
+#[S] TP#2520 ‘½“_ƒAƒ‰ƒCƒƒ“ƒg‘Î‰JOBLOG’Ç‰Á
+MAX_MARK_INFO_NUM =		MAX_MARK_NUM										# —Ìˆæ‚²‚Æƒ}[ƒNî•ñ‚ÌÅ‘å”iŒ»“_‚Å‚ÍPiece‚Ì2000x4=#800‚ªÅ‘å 
+
+MAX_MARK_PNT_MULTI =		( MAX_NTC_PEC_ALN_INF * 4 )							# ƒAƒ‰ƒCƒƒ“ƒgî•ñ’Ê’m—p #Å‘åƒ}[ƒNID” 
+#[E] TP#2520 ‘½“_ƒAƒ‰ƒCƒƒ“ƒg‘Î‰JOBLOG’Ç‰Á
+MAX_NTC_PEC_ALN_INF =		48													# ƒAƒ‰ƒCƒƒ“ƒgî•ñ’Ê’m—p #Å‘å—Ìˆæ” 
+#[E] #1453 ‘½“_ƒAƒ‰ƒCƒƒ“ƒg‘Î‰
+
+CAM_SEL_MAX_X_SHIFT_NUM =	50		# #XƒVƒtƒgÅ‘å” 
+CAM_SEL_MAX_Y_SHIFT_NUM =	30		# #YƒVƒtƒgÅ‘å” 
+
+CAM_SEL_MAX_SHOT_NUM_CALIB =		40			# 1ƒXƒLƒƒƒ“‚Å‚ÌÅ‘åB‰e” ( ƒJƒƒ‰ƒLƒƒƒŠƒuAƒƒ“ƒe—p #) 
+CAM_SEL_MAX_SHOT_NUM =			1000		# #1ƒXƒLƒƒƒ“‚Å‚ÌÅ‘åB‰e” 
+CAM_SEL_MAX_SCAN_MARK_NUM =		1000		# #1ƒXƒLƒƒƒ“‚ÅB‰e‚·‚éÅ‘åƒ}[ƒN” 
+
+MAX_SCAN_SHOT_NUM_PIECE_ALIGNMENT =1000									# PeaceƒAƒ‰ƒCƒƒ“ƒg : #1ƒXƒLƒƒƒ“‚Å‚ÌÅ‘åB‰e” 
+MAX_SCAN_MARK_NUM_PIECE_ALIGNMENT =1000									# PeaceƒAƒ‰ƒCƒƒ“ƒg : #1ƒXƒLƒƒƒ“‚ÅB‰e‚·‚éÅ‘åƒ}[ƒN” 
+SHOT_AND_BLANK_NUM_PIECE_ALIGNMENT =1000									# PeaceƒAƒ‰ƒCƒƒ“ƒg : 1ƒXƒLƒƒƒ“‚ÅB‰e‚·‚éÅ‘åƒ}[ƒN” + #–¢B‰eƒJƒƒ‰‚Ì–¢g—pƒ}[ƒN” 
+																					# ¦ –¢B‰eƒJƒƒ‰‚Ì‹óŒ‚‚¿” ( Å‘å3‰ñ ) #‚ğŠÜ‚ß‚é 
+
+COMMON_SEGMENT_MAXNUM =	50	# ƒZƒOƒƒ“ƒg—LŒø #Å‘åŒÂ” 
+
+COMMON_RIP_SCALE_100_PERCENT =( 100 * 10000 )		# Šî€”{—¦ 100% [0.0001#%] 
+
+
+#------------------------------
+#	ƒŒƒ“ƒ_ƒŠƒ“ƒOƒpƒ‰ƒ[ƒ^
+#------------------------------
+RENDERING_PARAM_DATA_SIZE =( N_BYTE_SEND_SIZE_MAX - 8 )		# ƒŒƒ“ƒ_ƒŠƒ“ƒOƒpƒ‰ƒ[ƒ^‚ÌBinaryƒf[ƒ^•”‚Ì‘—MÅ‘åƒTƒCƒY [#Byte] 
+
+# #“]‘—•û–@ 
+# typedef enum
+# {
+# 	RENDERING_PARAM_TRANS_PF = 0,		# ‹¤’ÊPF ( ƒŒƒ“ƒ_ƒŠƒ“ƒOƒpƒ‰ƒ[ƒ^’Ê’m‚ÌBinaryƒf[ƒ^‚Å“]‘— #) 
+# 	RENDERING_PARAM_TRANS_FILE,			# #ƒtƒ@ƒCƒ‹ 
+# 	RENDERING_PARAM_TRANS_NUM
+# } RENDERING_PARAM_TRANS
+RENDERING_PARAM_TRANS_PF = 0		# ‹¤’ÊPF ( ƒŒƒ“ƒ_ƒŠƒ“ƒOƒpƒ‰ƒ[ƒ^’Ê’m‚ÌBinaryƒf[ƒ^‚Å“]‘— #) 
+RENDERING_PARAM_TRANS_FILE = 1			# #ƒtƒ@ƒCƒ‹ 
+RENDERING_PARAM_TRANS_NUM = 2
+
+
+#------------------------------
+	# ƒRƒƒ“ƒgƒpƒ‰ƒ[ƒ^
+#------------------------------
+COM_COMMENT_MAX =					3000# ƒRƒƒ“ƒgÅ‘å”	# @014
+COM_COMMENT_MIN =					1	# ƒRƒƒ“ƒgÅ¬”
+
+#------------------------------
+	# ƒtƒ@ƒCƒ‹ƒpƒX
+#------------------------------
+#[S] TP#1672 Linux‘¤‚Ìƒeƒ“ƒvƒŒ[ƒgİ’èƒtƒ@ƒCƒ‹(ALNPRM.ini)‚ªXV‚³‚ê‚È‚¢
+# USR_PASS =		"/usr/"				# Tracker#692
+# COMMON_SYSTEMDATA_DIR =	"/home/fujifilm/vecot/systemdata"
+# COMMON_MARK_USER_DIR =	"/home/fujifilm/vecot/mark/usr"
+
+# COMMON_FILE_PATH_ALNPRMSET_INI =			COMMON_MARK_USER_DIR "/ALNPRMSET.ini"
+# COMMON_FILE_PATH_ALNPRM_INI =				COMMON_SYSTEMDATA_DIR "/ALNPRM.ini"
+# #[E] TP#1672 Linux‘¤‚Ìƒeƒ“ƒvƒŒ[ƒgİ’èƒtƒ@ƒCƒ‹(ALNPRM.ini)‚ªXV‚³‚ê‚È‚¢
+# REMOTE_FILE_PATH_ALNPRMSET_INI =			REMOTE_MARK_USR_PATH "ALNPRMSET.ini"
+
+# ¥ -- Start -- #1729 ƒJƒƒ‰Æ–¾F–ˆ Šî”ÂƒIƒtƒZƒbƒg‹@”\’Ç‰Á ¥
+
+#------------------------------------------------------------
+#* << ƒXƒgƒƒ{í•Ê >>
+#------------------------------------------------------------
+# enum OPTION_STROBE_KIND
+# {
+# 	STROBE_TYPE_1 = 0,		# •W€Æ–¾‚ÌÆ–¾”Ô†
+# 	STROBE_TYPE_2,			# ƒIƒvƒVƒ‡ƒ“Æ–¾1‚ÌÆ–¾”Ô†
+# 	STROBE_TYPE_3,			# ƒIƒvƒVƒ‡ƒ“Æ–¾2‚ÌÆ–¾”Ô†
+# 	MAX_OPTION_STROBE		# ƒXƒgƒƒ{í•Ê”
+# }
+
+STROBE_TYPE_1 = 0	    	# •W€Æ–¾‚ÌÆ–¾”Ô†
+STROBE_TYPE_2 = 1			# ƒIƒvƒVƒ‡ƒ“Æ–¾1‚ÌÆ–¾”Ô†
+STROBE_TYPE_3 = 2			# ƒIƒvƒVƒ‡ƒ“Æ–¾2‚ÌÆ–¾”Ô†
+MAX_OPTION_STROBE = 3 		# ƒXƒgƒƒ{í•Ê”
+
+# £ --- End --- #1729 ƒJƒƒ‰Æ–¾F–ˆ Šî”ÂƒIƒtƒZƒbƒg‹@”\’Ç‰Á £
+
+# #_SYSTEM_COMMON_H_ 
+
+
+
+RPL_SCALING_FIX	=			0	#/* w’èƒXƒP[ƒŠƒ“ƒO					*/
+RPL_SCALING_AUTO=			1	#/* ƒI[ƒgƒXƒP[ƒŠƒ“ƒO					*/
+RPL_DIST_BILINEA=R			2	#/* ˜c‚İƒAƒ‰ƒCƒƒ“ƒg(©—R•ÏŒ`A‘äŒ`)	*/
+RPL_DIST_AFFINE	=			3	#/* ˜c‚İƒAƒ‰ƒCƒƒ“ƒg(•½sl•ÓŒ`)		*/
+
+RPL_NON_ALIGNMENT		=	0	#/* ƒAƒ‰ƒCƒƒ“ƒg–³‚µ */
+RPL_PLANE_MODE	=			1	#/* ˆêŠ‡ƒAƒ‰ƒCƒƒ“ƒg */
+RPL_DIV_MODE	=			2	#/* •ªŠ„ƒAƒ‰ƒCƒƒ“ƒg */
+
+RPL_SCL_INDIVIDUAL =			0	#/* ŒÂ•Ğ—Ìˆæ“Æ—§”{—¦(Šî”Â’[—Ìˆæ‚ÍRPL_SCL_PLANE‚Æ“¯‚¶) */
+RPL_SCL_AVE_AREA=			1	#/* ŒÂ•Ğ—Ìˆæ”{—¦•½‹Ï	*/
+RPL_SCL_PLANE	=			2	#/* Šî”Â”{—¦			*/
+
+from collections import namedtuple
+
+
 class DivAlignInfo:
     def __init__(self):
-        divnum_x
-        divnum_y
-        MARK_DT
-        divPoint[MAX_ALIGN_DIV][2]
-        markNum[MAX_ALIGN_DIV]
-        SCALE_T
-        scale[MAX_ALIGN_DIV]
+        self.divnum_x = 0
+        self.divnum_y = 0
+        self.MARK_DT = 0
+        self.divPoint = np.zeros((MAX_ALIGN_DIV,2), dtype=float)
+        self.markNum = np.zeros((MAX_ALIGN_DIV), dtype=float)
+        self.SCALE_T = 0
+        self.scale = np.zeros((MAX_ALIGN_DIV), dtype=float)
+        self.MARK_DIST = 0
+        self.markDist = np.zeros((MAX_MARK_NUM), dtype=float)
+        self.areaMarkInfo = np.zeros((MAX_MARK_NUM), dtype=float)
+        self.markInfoIndex = np.zeros((MAX_ALIGN_DIV), dtype=float)
+        self.areaScaleMode = 0
+        self.boardScaleMode = 0
 
-       # [S]  # 1453 å¤šç‚¹ã‚¢ãƒ©ã‚¤ãƒ¡ãƒ³ãƒˆå¯¾å¿œ
-        MARK_DIST
-        markDist[MAX_MARK_NUM]
-        areaMarkInfo[MAX_MARK_NUM]# ãƒãƒ¼ã‚¯æƒ…å ±é…åˆ—(é ˜åŸŸæ¯ã®ãƒãƒ¼ã‚¯IDæ ¼ç´)
-        markInfoIndex[MAX_ALIGN_DIV]# ãƒãƒ¼ã‚¯æƒ…å ±ã‚¤ãƒ³ãƒ‡ãƒƒã‚¯ã‚¹(ãƒãƒ¼ã‚¯æƒ…å ±é…åˆ—ã®æŒ‡å®šå­)
 
-        // [E]  # 1453 å¤šç‚¹ã‚¢ãƒ©ã‚¤ãƒ¡ãƒ³ãƒˆå¯¾å¿œ
-        areaScaleMode# RPL_SCL_INDIVIDUAL | RPL_SCL_AVE_AREA | RPL_SCL_PLANE
-        boardScaleMode
+
+# typedef struct mark_info {
+# 	int32_t		x;					// ƒ}[ƒNXÀ•W[1/100um]
+# 	int32_t		y;					// ƒ}[ƒNYÀ•W[1/100um]
+# } MARK_DT;
+MARK_DT = namedtuple("MARK_DT", "x y")
+
+# typedef struct scale_t {
+# 	double		x;					//	X”{—¦(%)
+# 	double		y;					//	Y”{—¦(%)
+# } SCALE_T;
+SCALE_T = namedtuple("SCALE_T", "x y")
+
+
+
+# typedef struct {
+# 	int				num;						// ƒ}[ƒNŒÂ”
+# 	double			xlog[MAX_MARK_NUM];			// ˜_—À•WX [1/100um]
+# 	double			ylog[MAX_MARK_NUM];			// ˜_—À•WY [1/100um]
+# 	double			xmes[MAX_MARK_NUM];			// Œv‘ªÀ•WX [1/100um]
+# 	double			ymes[MAX_MARK_NUM];			// Œv‘ªÀ•WY [1/100um]
+# } SMarkInfo;
+
+
+SMarkInfo = namedtuple("SMarkInfo", "num xlog ylog xmes ymes")
+
+
+# typedef struct {
+# 	int				scalingMode;				// ƒXƒP[ƒŠƒ“ƒOƒ‚[ƒh(0,1,2)
+# 	double			kx;							// X•ûŒüw’è”{—¦ kx[”{—¦]	
+# 	double			ky;							// Y•ûŒüw’è”{—¦ ky[”{—¦]	
+# 	double			dx[MAX_MARK_NUM];			// X•ûŒüw’è˜c‚İ•â³’l
+# 	double			dy[MAX_MARK_NUM];			// Y•ûŒüw’è˜c‚İ•â³’l
+# 	double			distAdjustment;				// ˜c‚İ•â³’²®’l(0`100)[“]	
+# 	int				distAnnularing;				// ˜c‚İ•â³ƒAƒjƒ…ƒ‰ƒŠƒ“ƒO [1/100um]
+# 	int				Dlimit_start;				// ˜c‚İ•â³ŠJn’l[1/100um]
+# 	int				Dlimit_max;					// ˜c‚İ•â³§ŒÀ’l[1/100um]
+# } SDirection;
+SDirection = namedtuple("SDirection", "scalingMode kx ky dx dy distAdjustment distAnnularing Dlimit_start Dlimit_max")
+
+
+
+# typedef struct {
+# 	int				ofsx;						// ƒIƒtƒZƒbƒgofsx [1/100um]
+# 	int				ofsy;						// ƒIƒtƒZƒbƒgofsy [1/100um]
+# 	double			theta;						// ‰ñ“]—Êtheta [rad]	
+# 	double			kx;							// Šî”Â”{—¦ kx
+# 	double			ky;							// Šî”Â”{—¦ ky
+# 	int				gx;							// XdS
+# 	int				gy;							// YdS
+# 	int				mkMaxIdx;					// ƒ}[ƒN‚¸‚êÅ‘å’l
+# 	double			mkMaxVal;					// ƒ}[ƒN‚¸‚êÅ‘å’l			
+# 	double			mkdx[MAX_MARK_NUM];			// ƒ}[ƒN‚ÌƒYƒŒ—ÊdX [1/100um]
+# 	double			mkdy[MAX_MARK_NUM];			// ƒ}[ƒN‚ÌƒYƒŒ—ÊdY [1/100um]
+# 	double			mkdr[MAX_MARK_NUM];			// ƒ}[ƒN‚ÌƒYƒŒ—Êde [1/100um]
+# 	int				mkMaxCorrErrIdx;			// ‚¸‚êÅ‘å’l
+# 	double			mkMaxCorrErrVal;			// ‚¸‚êÅ‘å’l
+# 	double			mkCorrErrdx[MAX_MARK_NUM];	// ƒ}[ƒN•â³c·dX [1/100um]
+# 	double			mkCorrErrdy[MAX_MARK_NUM];	// ƒ}[ƒN•â³c·dY [1/100um]
+# 	double			mkCorrErrdr[MAX_MARK_NUM];	// ƒ}[ƒN•â³c·de [1/100um]
+# 	int				mkMaxCorrValIdx;			// •â³—ÊÅ‘å’l
+# 	double			mkMaxCorrValVal;			// •â³—ÊÅ‘å’l
+# 	double			mkCorrValdx[MAX_MARK_NUM];	// ƒ}[ƒN•â³c·dX [1/100um]
+# 	double			mkCorrValdy[MAX_MARK_NUM];	// ƒ}[ƒN•â³c·dY [1/100um]
+# 	double			mkCorrValdr[MAX_MARK_NUM];	// ƒ}[ƒN•â³c·de [1/100um]
+# } SAlignmentParam;
+
+SAlignmentParam = namedtuple("SAlignmentParam", "ofsx ofsy theta kx ky gx gy mkMaxIdx mkMaxVal mkdx mkdy mkdr mkMaxCorrErrIdx mkMaxCorrErrVal mkCorrErrdx mkCorrErrdy mkCorrErrdr mkMaxCorrValIdx mkMaxCorrValVal mkCorrValdx mkCorrValdy mkCorrValdr")
+
+
+# typedef struct {
+# 	double			theta;						// ‰ñ“]—Êtheta [rad]	
+# 	double			kx;							// ˜IŒõ”{—¦ kx
+# 	double			ky;							// ˜IŒõ”{—¦ ky
+# 	int				ofsx;						// ƒIƒtƒZƒbƒgofsx
+# 	int				ofsy;						// ƒIƒtƒZƒbƒgofsy
+# 	int				rx[4];						// ‹éŒ`’¸“_À•Wrx [1/100um]
+# 	int				ry[4];						// ‹éŒ`’¸“_À•Wry [1/100um]
+# 	int				rdx[4];						// ‹éŒ`—Ìˆæ’¸“_‚Å‚ÌƒYƒŒ•â³—Êdx [1/100um]
+# 	int				rdy[4];						// ‹éŒ`—Ìˆæ’¸“_‚Å‚ÌƒYƒŒ•â³—Êdy [1/100um]
+# 	double			p1[4];						// ‘äŒ`•â³/•½sl•ÓŒ`•â³—pƒpƒ‰ƒ[ƒ^
+# 	double			p2[4];						// ‘äŒ`•â³/•½sl•ÓŒ`•â³—pƒpƒ‰ƒ[ƒ^
+# } SVectorParam;
+SVectorParam = namedtuple("SVectorParam","theta kx ky ofsx ofsy rx ry rdx rdy p1 p2")
