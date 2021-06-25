@@ -41,7 +41,7 @@ class RenderingParametersForwardMathematicalModel():
         pass
 
     # calcRenderingPrmLib_calcRenderingPrm_for_div
-    def calcRenderingPrmLib_calcRenderingPrm_for_div(self, pecLogFD, JobId, subJobID, boradNum, revice_mode, markNum, designPos, measurePos, planePos, tranceform_mode, alignMode, planeInfo, divInfo, distControl, outAlignParam, outRenderingParam):
+    def MathematicalCore(self, pecLogFD, JobId, subJobID, boradNum, revice_mode, markNum, designPos, measurePos, planePos, tranceform_mode, alignMode, planeInfo, divInfo, distControl, outAlignParam, outRenderingParam):
         '''
         int calcRenderingPrmLib_calcRenderingPrm_for_div(
         int				pecLogFD,
@@ -50,8 +50,8 @@ class RenderingParametersForwardMathematicalModel():
         const int		boradNum,
         const int		revice_mode,
         const int		markNum,
-        const MARK_DT	designPos,				# TP609 200 split support
-        const MARK_DT 	measurePos,			# TP609 200 split support
+        const MARK_DT	designPos,				# TP609 200分割対応 
+        const MARK_DT 	measurePos,			# TP609 200分割対応 
         const MARK_DT	planePos[2],
         const int		/*tranceform_mode*/,
         const int		/*alignMode*/,
@@ -62,7 +62,7 @@ class RenderingParametersForwardMathematicalModel():
         RenderingParam*	outRenderingParam )
         '''
 
-        #Input Paramters
+        # Input Paramters 
         divInfo = DivAlignInfo()
 
         i = 0
@@ -80,15 +80,15 @@ class RenderingParametersForwardMathematicalModel():
             return ERR_ALIGNMENT_INVALID_AREA_NUM
         
 
-        #Parameter check (division area mark points 2 points or 4 points)
+        # パラメータチェック(分割領域マーク点数 2点or4点)
         for divCnt in range(0, divNum):
 
-            #Parameter check (division area mark points 2 to 800 points)
+            # パラメータチェック(分割領域マーク点数 2～800点)
             if divInfo.markNum[divCnt] < 2 or MAX_MARK_NUM_DIVIDE_AREA < divInfo.markNum[divCnt]:
                 return ERR_ALIGNMENT_MARK_NUM
 
         
-        # Calculation of board magnification
+        # 基板倍率の算出
         kx_plane=0.0
         ky_plane=0.0
         kx_ave_area=0.0
@@ -101,22 +101,22 @@ class RenderingParametersForwardMathematicalModel():
     def CalcScalingPlane(self, pecLogFD,JobId,subJobID,boradNum,markNum, designPos, measurePos,	kx_plane, ky_plane ):
         i = 0 
         ret = 0
-        # TP609 Supports 200 divisions Local variables in the temporary area are abolished
+        # TP609 200分割対応 テンポラリ領域のローカル変数を廃止
         markInfo = SMarkInfo(0,0,0,0,0,0)
         
-        # TP609 Supports 200 divisions Local variables in the temporary area are abolished
+        # TP609 200分割対応 テンポラリ領域のローカル変数を廃止
         #[S] #1487 3点アライメント対応
         idx = 0
         #[E] #1487 3点アライメント対応
-        markInfo.num = markNum		# TP609 Supports 200 divisions Local variables in the temporary area are abolished
+        markInfo.num = markNum		# TP609 200分割対応 テンポラリ領域のローカル変数を廃止
         #[S] #1487 3点アライメント対応
         idx = 0
         for i in range(markNum):
             if measurePos[i].x == 88888888:
-                markInfo.num -= 1		# TP609 Supports 200 divisions Local variables in the temporary area are abolished
+                markInfo.num -= 1		# TP609 200分割対応 テンポラリ領域のローカル変数を廃止
                 continue
             
-            # TP609 Supports 200 divisions Local variables in the temporary area are abolished
+            # TP609 200分割対応 テンポラリ領域のローカル変数を廃止
             markInfo.xlog[idx]= designPos [i].x
             markInfo.ylog[idx]= designPos [i].y
             markInfo.xmes[idx]= measurePos[i].x
@@ -126,30 +126,30 @@ class RenderingParametersForwardMathematicalModel():
 
         #[E] #1487 3点アライメント対応
 
-        # TP609 Supports 200 divisions Local variables in the temporary area are abolished
+        # TP609 200分割対応 テンポラリ領域のローカル変数を廃止
         directionPanel = self.directionTemp1
         directionArray = self.directionTemp2
         
         directionPanel.scalingMode = RPL_SCALING_AUTO
         directionPanel.kx = 0.0
         directionPanel.ky = 0.0
-        directionArray.scalingMode = RPL_SCALING_AUTO		#Scaling mode (no distortion correction) is set for the area around the plate edge (area 0) during distortion correction.
+        directionArray.scalingMode = RPL_SCALING_AUTO		# 歪み補正時の板端周辺部(領域0)はスケーリングモード(歪み補正無し)とする。
         directionArray.kx = 0.0
         directionArray.ky = 0.0
 
-        #Internal-Alignment parameters
+        # 内部用-アライメントパラメータ
         alignmentParam = self.alignmentParamTemp1
-        #Internal-Vector parameters
+        # 内部用-ベクタパラメータ
         vectorParam = self.vectorParamTemp1
-        # TP609 Supports 200 divisions Local variables in the temporary area are abolished
+        # TP609 200分割対応 テンポラリ領域のローカル変数を廃止
 
         ret = self.CalAlignmentParam(pecLogFD, False, directionPanel,markInfo,alignmentParam,vectorParam)		#☆☆☆2000分割検討 テンポラリ領域のローカル変数を廃止
         
         if ret!=ERR_ALIGNMENT_NOERR :
             return ret
         
-        kx_plane = alignmentParam.kx		# TP609 Supports 200 divisions Local variables in the temporary area are abolished
-        ky_plane = alignmentParam.ky		# TP609 Supports 200 divisions Local variables in the temporary area are abolished
+        kx_plane = alignmentParam.kx		# TP609 200分割対応 テンポラリ領域のローカル変数を廃止
+        ky_plane = alignmentParam.ky		# TP609 200分割対応 テンポラリ領域のローカル変数を廃止
 
         return 0
     
@@ -176,15 +176,15 @@ class RenderingParametersForwardMathematicalModel():
         ret = 0 
         tmpNum = 0
 
-        # For calculation of measurement magnification
+        # 計測倍率の算出用
         kxMes = 0.0
         kyMes = 0.0
 
         if  pDirection.scalingMode!=RPL_SCALING_FIX and pDirection.scalingMode!=RPL_SCALING_AUTO and pDirection.scalingMode!=RPL_DIST_AFFINE and pDirection.scalingMode!=RPL_DIST_BILINEAR :
             return ERR_ALIGNMENT_SCALING_PARAM
 
-        # TP609 200 split support
-        # TP609 200 split support
+        # TP609 200分割対応 
+        # TP609 200分割対応 
 
         #[S] #1487 3点アライメント対応
         for i in range(pMarkInfo.num):
@@ -195,7 +195,7 @@ class RenderingParametersForwardMathematicalModel():
             xm[i]=pMarkInfo.xmes[i]
             ym[i]=pMarkInfo.ymes[i]
 
-        #Calculate offset for display / mechanical control
+        # 表示・メカ制御用のオフセットを算出
         sum_xl=0
         sum_yl=0
         sum_xm=0
@@ -210,26 +210,26 @@ class RenderingParametersForwardMathematicalModel():
             sum_xm+=pMarkInfo.xmes[i]
             sum_ym+=pMarkInfo.ymes[i]
 
-        # [S] TP # 1559 2000 division improvement Step1 NG piece compatible
+        # [S]TP#1559 2000分割改善Step1 NGピース対応
         if tmpNum <= 0:
-            return ERR_ALIGNMENT_MARK_NUM			# Add a guard so as not to divide by zero
+            return ERR_ALIGNMENT_MARK_NUM			# 0割しないようにガードを追加
 
-        # [E] TP # 1559 2000 division improvement Step1 NG piece compatible
+        # [E]TP#1559 2000分割改善Step1 NGピース対応
         pAlignParam.gx = llround(sum_xl / tmpNum)
         pAlignParam.gy = llround(sum_yl / tmpNum)
         pAlignParam.ofsx = llround((sum_xm - sum_xl) / tmpNum)
         pAlignParam.ofsy = llround((sum_ym - sum_yl) / tmpNum)
         #[E] #1487 3点アライメント対応
 
-        # Magnification setting
+        # 倍率の設定
         theta = 0
         kx = 0
         ky = 0
         ofsx = 0
         ofsy = 0
         
-        if 	pDirection.scalingMode==RPL_SCALING_FIX:				#Use specified magnification
-            # Specified magnification suspected of mounting error is an error
+        if 	pDirection.scalingMode==RPL_SCALING_FIX:				# 指定倍率を使用
+            # 実装ミスが疑われる指定倍率はエラーとする
             if pDirection.kx<0.95 or 1.05<pDirection.kx:
                 return ERR_ALIGNMENT_KX_VALUE
             
@@ -243,31 +243,31 @@ class RenderingParametersForwardMathematicalModel():
             ky = 0.0
         
 
-        #Calculate rotation / magnification / offset
+        # 回転/倍率/オフセットを算出
         if pMarkInfo.num == 2:
-            ret = self.CalThetaKxKyOfsFor2Points(pecLogFD,xl,yl,xm,ym,theta,kxMes,kyMes,ofsx,ofsy)			#Measurement board magnification
+            ret = self.CalThetaKxKyOfsFor2Points(pecLogFD,xl,yl,xm,ym,theta,kxMes,kyMes,ofsx,ofsy)			# 測定基板倍率
             if ret!=ERR_ALIGNMENT_NOERR:
                 return ret
-            ret = self.CalThetaKxKyOfsFor2Points(pecLogFD,xl,yl,xm,ym,theta,kx,ky,ofsx,ofsy)				#Exposure substrate magnification
+            ret = self.CalThetaKxKyOfsFor2Points(pecLogFD,xl,yl,xm,ym,theta,kx,ky,ofsx,ofsy)				# 露光基板倍率
             if ret!=ERR_ALIGNMENT_NOERR:
                 return ret
         else :
-            ret = self.CalThetaKxKyOfsByLSM(pecLogFD,pMarkInfo.num,xl,yl,xm,ym,theta,kxMes,kyMes,ofsx,ofsy) #Measurement board magnification
+            ret = self.CalThetaKxKyOfsByLSM(pecLogFD,pMarkInfo.num,xl,yl,xm,ym,theta,kxMes,kyMes,ofsx,ofsy) # 測定基板倍率
             if ret!=ERR_ALIGNMENT_NOERR:
                 ret = self.CalThetaKxyOfsByLSM(pecLogFD,pMarkInfo.num,xl,yl,xm,ym,theta,kxMes,kyMes,ofsx,ofsy)
                 if ret!=ERR_ALIGNMENT_NOERR:
                     return ret
             
-            ret = self.CalThetaKxKyOfsByLSM(pecLogFD,pMarkInfo.num,xl,yl,xm,ym,theta,kx,ky,ofsx,ofsy)		#Exposure substrate magnification
+            ret = self.CalThetaKxKyOfsByLSM(pecLogFD,pMarkInfo.num,xl,yl,xm,ym,theta,kx,ky,ofsx,ofsy)		# 露光基板倍率
             if ret!=ERR_ALIGNMENT_NOERR:
                 ret = self.CalThetaKxyOfsByLSM(pecLogFD,pMarkInfo.num,xl,yl,xm,ym,theta,kx,ky,ofsx,ofsy)
                 if ret!=ERR_ALIGNMENT_NOERR:
                     return ret
 
-        # Convert measured coordinates to design coordinate reference with calculated rotation / magnification / offset
-        # Calculation of mark deviation value
-        # TP609 200 split support
-        # TP609 200 split support
+        # 算出された回転/倍率/オフセットで測定座標を設計座標基準へ変換
+        # マークずれ値の算出
+        # TP609 200分割対応 
+        # TP609 200分割対応 
 
         for i in range(pMarkInfo.num):
             if xm[i] == 88888888:
@@ -283,9 +283,9 @@ class RenderingParametersForwardMathematicalModel():
                 dist_dy[i] = yml[i] - (yl[i] * ky)
                 dist_dr[i] = math.sqrt(dist_dx[i]*dist_dx[i]+dist_dy[i]*dist_dy[i])
 
-        # Residual after rotation / magnification / offset
-        # Mark deviation amount at fixed magnification: deviation amount from fixed magnification
-        # Mark deviation amount during magnification correction: deviation amount after magnification correction
+        # 回転・倍率・オフセットした後の残差
+        # 固定倍率時のマークずれ量：固定倍率からのずれ量
+        # 倍率補正時のマークずれ量：倍率補正後からのずれ量
         pAlignParam.mkMaxVal = 0
         for i in range(pMarkInfo.num):
             pAlignParam.mkdx[i] = dist_dx[i]
@@ -303,20 +303,20 @@ class RenderingParametersForwardMathematicalModel():
             
         
 
-        # Distortion correction amount setting
-        if 	pDirection.scalingMode==RPL_SCALING_FIX and pMarkInfo.num==4 :	# Fixed magnification & 4-point mark-Adopts specified distortion amount
+        # 歪み補正量の設定
+        if 	pDirection.scalingMode==RPL_SCALING_FIX and pMarkInfo.num==4 :	# 固定倍率＆４点マーク時-指定歪み量を採用
             for i in range(pMarkInfo.num):
-                dx[i] = pDirection.dx[i]				#Enter the specified strain amount X
-                dy[i] = pDirection.dy[i]				#Enter the specified strain amount Y
+                dx[i] = pDirection.dx[i]				# 指定された歪み量Xを入力
+                dy[i] = pDirection.dy[i]				# 指定された歪み量Yを入力
                 dr[i] = math.math.sqrt(dx[i]*dx[i]+dy[i]*dy[i])
-        # Others adopt the amount of distortion from the rectangle
+        # その他は矩形からの歪み量を採用
         else:
             for i in range(pMarkInfo.num):
                 dx[i] = dist_dx[i]
                 dy[i] = dist_dy[i]
                 dr[i] =	dist_dr[i]
 
-        #Initialization of bilinear distortion correction parameters
+        # バイリニア歪み補正パラメータの初期化
         pVecotorParam.rx[0] = 0	
         pVecotorParam.ry[0] = 0
 
@@ -343,9 +343,9 @@ class RenderingParametersForwardMathematicalModel():
 
 
         # I dont get what is the reason of up until now does they add the 4 constant
-        if (pDirection.scalingMode==RPL_SCALING_FIX or		# Fixed scaling
-                pDirection.scalingMode==RPL_DIST_AFFINE or		#Parallelogram
-                pDirection.scalingMode== RPL_DIST_BILINEAR ) and  bDistSW and pMarkInfo.num==4 :				# Distortion correction SW effective & 4-point alignment
+        if (pDirection.scalingMode==RPL_SCALING_FIX or		# 固定スケーリング
+                pDirection.scalingMode==RPL_DIST_AFFINE or		# 平行四辺形
+                pDirection.scalingMode== RPL_DIST_BILINEAR ) and  bDistSW and pMarkInfo.num==4 :				# 歪み補正SW有効＆４点アライメント
             rx = np.zeros((4, 1), dtype=float)
             ry = np.zeros((4, 1), dtype=float)
             rdx = np.zeros((4, 1), dtype=float)
@@ -353,8 +353,8 @@ class RenderingParametersForwardMathematicalModel():
             xlm = 0
             ylm = 0 
 
-            #Strain amount adjustment (changed to this position in Ver0.14)
-            #Strain amount adjustment (changed to this position in Ver0.14)
+            # 歪み量調整(Ver0.14でこの位置へ変更)
+            # Strain amount adjustment (changed to this position in Ver0.14) 
             ret = self.AdjustDistParam(	pecLogFD,
                                     pDirection.distAdjustment,
                                     pDirection.distAnnularing,
@@ -364,24 +364,24 @@ class RenderingParametersForwardMathematicalModel():
             if ret != ERR_ALIGNMENT_NOERR:
                 return ret
 
-            #Parallelogram distortion correction parameter (P1 [3] = 0, P2 [3] = 0)
-            #Parallelogram distortion correction parameters (P1 [3] = 0, P2 [3] = 0)
+            # 平行四辺形化歪み補正パラメータ(P1[3]=0,P2[3]=0)
+            # Parallelogram distortion correction parameters (P1 [3] = 0, P2 [3] = 0) 
             if 	pDirection.scalingMode == RPL_DIST_AFFINE :
                 ret = self.CalDistCorrectByAffine(pecLogFD,4,xl,yl,dxAdj,dyAdj)
                 if ret!=ERR_ALIGNMENT_NOERR:
                     return ret
 
-            #Log output
+            # ログ出力
             for i in range(pMarkInfo.num):
                 dr = math.sqrt(dxAdj[i]*dxAdj[i]+dyAdj[i]*dyAdj[i])
 
-            #Calculation of distortion amount in arbitrary rectangular area
-            #Calculation of the amount of distortion in an arbitrary rectangular area
+            # 任意矩形領域での歪み量の算出
+            # Calculation of the amount of distortion in an arbitrary rectangular area 
             ret = self.CalDistCorrectByBilinear(pecLogFD,4, xl, yl, xml, yml, dxAdj, dyAdj, rx, ry, rdx, rdy )
             if ret!=ERR_ALIGNMENT_NOERR:
                 return ret
 
-            #Log output
+            # ログ出力
             for i in range(pMarkInfo.num):
                 dr = math.math.sqrt(rdx[i]*rdx[i]+rdy[i]*rdy[i])
 
@@ -420,7 +420,7 @@ class RenderingParametersForwardMathematicalModel():
             pVecotorParam.rdx[3] = llround(rdx[3])
             pVecotorParam.rdy[3] = llround(rdy[3])
 
-            #Generation of image transformation matrix (P1 [0] -P1 [3], P2 [0]-P2 [0])
+            # 画像変換行列(P1[0]-P1[3],P2[0]-P2[0])の生成
             ss = (rx[3]-rx[0])*(ry[3]-ry[0])
             pVecotorParam.p1[0] = (rdx[0]*rx[3]*ry[3]-rdx[1]*rx[2]*ry[2]-rdx[2]*rx[1]*ry[1]+rdx[3]*rx[0]*ry[0]) / ss
             pVecotorParam.p1[1] = (-rdx[0]*ry[3]+rdx[1]*ry[2]+rdx[2]*ry[1]-rdx[3]*ry[0]) / ss
@@ -432,7 +432,7 @@ class RenderingParametersForwardMathematicalModel():
             pVecotorParam.p2[2] = (-rdy[0]*rx[3]+rdy[1]*rx[2]+rdy[2]*rx[1]-rdy[3]*rx[0]) / ss
             pVecotorParam.p2[3] = (rdy[0]-rdy[1]-rdy[2]+rdy[3]) / ss
 
-            # Recalculation of mark deviation value! = The amount of deviation becomes smaller after distortion correction
+            # マークずれ値の再算出!=歪み補正後はずれ量が小さくなる
             for i in range(pMarkInfo.num):
                 ddx = (		(rx[3]-xl[i])*(ry[3]-yl[i])*rdx[0] - 
                             (rx[2]-xl[i])*(ry[2]-yl[i])*rdx[1] -
@@ -448,31 +448,31 @@ class RenderingParametersForwardMathematicalModel():
             
         else: 		
             # RPL_SCALING_AUTO
-            #Parameter validation
+            # パラメータ検証
             for i in range(pMarkInfo.num):
                 xlm = (kx*xl[i]) * math.cos(theta) - (ky*yl[i]) * math.sin(theta) + ofsx
                 ylm = (kx*xl[i]) * math.sin(theta) + (ky*yl[i]) * math.cos(theta) + ofsy
                 delta_x = xm[i]-xlm
                 delta_y = ym[i]-ylm
-                # Reset mark deviation value
+                # マークずれ値の再設定
                 dx[i] = dist_dx[i]
                 dy[i] = dist_dy[i]
                 dr[i] = dist_dr[i]
 
-        #Set rotation for display / mechanical control
+        # 表示・メカ制御用の回転を設定
         pAlignParam.kx = kxMes
         pAlignParam.ky = kyMes
         pAlignParam.theta = theta
 
-        # Addition of maximum deviation value and allowable value
+        # ずれ最大値と許容値の追加
         pAlignParam.mkMaxCorrErrIdx = 0
         pAlignParam.mkMaxCorrErrVal = 0
         for i in range(pMarkInfo.num):
-            #Image processing residual
+            # 画像処理残差
             pAlignParam.mkCorrErrdx[i] =dx[i]
             pAlignParam.mkCorrErrdy[i] =dy[i]
             pAlignParam.mkCorrErrdr[i] =dr[i]
-            #Image processing correction amount
+            # 画像処理補正量
             pAlignParam.mkCorrValdx[i] =dxAdj[i]
             pAlignParam.mkCorrValdy[i] =dyAdj[i]
             pAlignParam.mkCorrValdr[i] =math.sqrt(dxAdj[i]*dxAdj[i]+dyAdj[i]*dyAdj[i])
@@ -487,7 +487,7 @@ class RenderingParametersForwardMathematicalModel():
                 pAlignParam.mkMaxCorrValVal = pAlignParam.mkCorrErrdr[i]
             
 
-            #Parameter validation
+            # パラメータの検証
             vfy_x = pAlignParam.mkdx[i] - ( pAlignParam.mkCorrErrdx[i] + pAlignParam.mkCorrValdx[i] )
             vfy_y = pAlignParam.mkdy[i] - ( pAlignParam.mkCorrErrdy[i] + pAlignParam.mkCorrValdy[i] )
 
@@ -497,7 +497,7 @@ class RenderingParametersForwardMathematicalModel():
             if  vfy_y < -0.1 or 0.1 < vfy_y:
                 return ERR_ALIGNMENT_VFY_CORR_ERR_VAL_Y
 
-        #Storing the result in an output variable
+        # 出力変数へ結果の格納
         pVecotorParam.theta = theta
         pVecotorParam.kx = kx
         pVecotorParam.ky = ky
@@ -508,13 +508,13 @@ class RenderingParametersForwardMathematicalModel():
 
 
     def CalThetaKxKyOfsFor2Points(self, pecLogFD,    xl,    yl,    xm,    ym,     theta,     kx,     ky,     ofsx,     ofsy):
-    	#Calculation of center of gravity
+    	# 重心の算出
         gxl = (xl[0] + xl[1]) / 2
         gyl = (yl[0] + yl[1]) / 2
         gxm = (xm[0] + xm[1]) / 2
         gym = (ym[0] + ym[1]) / 2
 
-        # Magnification calculation
+        # 倍率算出
         DX = xl[1] - xl[0]
         DY = yl[1] - yl[0]
         MX = xm[1] - xm[0]
@@ -523,14 +523,14 @@ class RenderingParametersForwardMathematicalModel():
             kx = ky = math.sqrt(MX * MX + MY * MY) / math.sqrt(DX * DX + DY * DY)
         
 
-        # Calculation of rotation amount by inner product
-        # XY Multiply by magnification to consider ratio
+        # 内積による回転量算出
+        # XY倍率比を考慮するため倍率を掛ける
         DX *= kx
         DY *= ky
         MX = xm[1] - xm[0]
         MY = ym[1] - ym[0]
 
-        #Calculate rotation angle from inner product * /
+        # 内積から回転角度角度を計算 */
         DD = math.sqrt(DX * DX + DY * DY)
         MD = math.sqrt(MX * MX + MY * MY)
         if DD*MD<0.000001:
@@ -538,35 +538,35 @@ class RenderingParametersForwardMathematicalModel():
         
         theta = math.acos( (DX * MX + DY * MY) / (DD * MD) )
 
-        #Determine the direction of rotation from the outer product * /
+        # 外積から回転方向を決定 */
         DxM = DX * MY - DY * MX
         if DxM < 0 :
             theta *= -1 
         
 
-        #Calculate the amount of movement due to the rotation of the design center of gravity
+        # 設計重心の倍率回転による移動量を算出
         gxl_mov = kx * gxl * math.cos(theta) - ky * gyl * math.sin(theta)
         gyl_mov = kx * gxl * math.sin(theta) + ky * gyl * math.cos(theta)
 
         ofsx = gxm - gxl_mov
         ofsy = gym - gyl_mov
 
-        # Verification of calculated parameters
+        # 算出パラメータの検証
         xml[0] = kx * xl[0] * math.cos(theta) - ky * yl[0] * math.sin(theta) + ofsx
         yml[0] = kx * xl[0] * math.sin(theta) + ky * yl[0] * math.cos(theta) + ofsy
         xml[1] = kx * xl[1] * math.cos(theta) - ky * yl[1] * math.sin(theta) + ofsx
         yml[1] = kx * xl[1] * math.sin(theta) + ky * yl[1] * math.cos(theta) + ofsy
 
-        # Confirm that the rotation angles match
+        # 回転角度が一致することの確認
         MDX = xml[1] - xml[0]
         MDY = yml[1] - yml[0]
-        #Calculate the rotation angle from the inner product. Verify that the angles match
+        # 内積から回転角度角度を計算。角度が一致しているか検証
         verify_theta = math.acos( (MDX * MX + MDY * MY) / (math.sqrt(MDX * MDX + MDY * MDY) * math.sqrt(MX * MX + MY * MY)) )
         if verify_theta<-0.000001 or 0.000001<verify_theta:
             print("[ER] verify_error: theta=%lf (Out of range=+/-0.000001)",verify_theta)
             return ERR_ALIGNMENT_VERIFY_THETA
         
-        # Verification of the total of measured distance and conversion distance
+        # 計測距離と変換距離の合計の検証
         err0 = math.sqrt((xml[0]-xm[0])*(xml[0]-xm[0])+(yml[0]-ym[0])*(yml[0]-ym[0]))
         err1 = math.sqrt((xml[1]-xm[1])*(xml[1]-xm[1])+(yml[1]-ym[1])*(yml[1]-ym[1]))
         lml  = math.sqrt((xml[1]-xml[0])*(xml[1]-xml[0])+(yml[1]-yml[0])*(yml[1]-yml[0]))
@@ -591,14 +591,14 @@ class RenderingParametersForwardMathematicalModel():
         return ERR_ALIGNMENT_NOERR
 
     def CalThetaKxKyOfsByLSM(self, pecLogFD, num, xl, yl, xm, ym, theta, kx,ky, ofsx, ofsy):
-    	#Internal variables
+    	# 内部変数
         self.xxl = np.zeros((MAX_MARK_NUM, 1), dtype=float)
         self.yyl = np.zeros((MAX_MARK_NUM, 1), dtype=float)
         self.xxm = np.zeros((MAX_MARK_NUM, 1), dtype=float)
         self.yym = np.zeros((MAX_MARK_NUM, 1), dtype=float)
         
                     
-        #Calculate the coordinates of the design value and the center of gravity of the measured point
+        # 設計値と実測点の重心座標を算出
         gxl = 0
         gyl = 0
         gxm = 0
@@ -620,7 +620,7 @@ class RenderingParametersForwardMathematicalModel():
         gxm = gxm / tmpNum
         gym = gym / tmpNum
 
-        # Move the center of gravity of the design value and the measured value to the origin
+        # 設計値と実測値の重心を原点へ移動
         for i in range(num):
             if  xm[i] == 88888888 :
                 self.xxl[i] = xl[i]
@@ -635,7 +635,7 @@ class RenderingParametersForwardMathematicalModel():
                 self.yym[i] = ym[i] - gym
                 
 
-        #double Temporary for calculation
+        # double計算用テンポラリ
         A=0
         B=0
         C=0
@@ -644,7 +644,7 @@ class RenderingParametersForwardMathematicalModel():
         F=0
         G=0
 
-        #First time to find the amount of θ rotation
+        # θ回転量を求める 1回目
         for i in range(num):
             if xxm[i] == 88888888 :
                 continue
@@ -664,7 +664,7 @@ class RenderingParametersForwardMathematicalModel():
     
         dTheta1 = (B * C * D - A * E * F) / (A * D * G - D * B * B - A * E * E)
 
-        # Second time to find the amount of θ rotation
+        # θ回転量を求める 2回目
         A = 0
         B = 0
         C = 0
@@ -699,7 +699,7 @@ class RenderingParametersForwardMathematicalModel():
 
         theta = dTheta1 + dTheta2
     
-        #Calculate the amount of movement due to the rotation of the design center of gravity
+        # 設計重心の倍率回転による移動量を算出
         gxl_mov = kx * gxl * math.cos(*theta) - ky * gyl * math.sin(theta)
         gyl_mov = kx * gxl * math.sin(*theta) + ky * gyl * math.cos(theta)
 
@@ -716,7 +716,7 @@ class RenderingParametersForwardMathematicalModel():
             return ERR_ALIGNMENT_DIST_ADJUST_ERROR
         
 
-        #Adjusting the amount of distortion
+        # 歪み量の調整
         
         dr = np.zeros((4, 1), dtype=float)
         drAdj = np.zeros((4, 1), dtype=float)
@@ -731,13 +731,13 @@ class RenderingParametersForwardMathematicalModel():
             if dr[i]<0.000001: 
                 continue
 
-            # Distortion correction adjustment
+            # 歪み補正調整
             drr = adjustment / 100.0 * (dr[i] - D_limit_start)
             dxAdj[i] = dx[i] * drr / dr[i]
             dyAdj[i] = dy[i] * drr / dr[i]
             drAdj[i] = math.sqrt(dxAdj[i]*dxAdj[i]+dyAdj[i]*dyAdj[i])
 
-            # Set to 0 up to the distortion correction start value.
+            # 歪み補正開始値までは0とする。
             if drr<0:
                 print("[2-%2d] Dist limit(start) : drr(%8.0lf)=dr(%8.0lf) - limit_start(%d)\n",i,drr,dr[i],D_limit_start)
                 dxAdj[i] = 0.0
@@ -747,15 +747,15 @@ class RenderingParametersForwardMathematicalModel():
             print("[1-%2d] Dist Adj: dx(%8.0lf->%8.0lf), dy(%8.0lf->%8.0lf), dr(%8.0lf->%8.0lf)\n",
                         i,dx[i],dxAdj[i],dy[i],dyAdj[i],dr[i],drAdj[i])
 
-            #Annual ring
+            # アニュラリング
             if (dr[i]-drAdj[i])>annularing and dr[i]>0.000001:
-                dxAdj[i] = dx[i] - dx[i] * annularing / dr[i]	# dx [i] * (dr-annularing) / dr
-                dyAdj[i] = dy[i] - dy[i] * annularing / dr[i] # dy [i] * (dr-annularing) / dr
+                dxAdj[i] = dx[i] - dx[i] * annularing / dr[i]	# dx[i] * (dr-annularing)/dr
+                dyAdj[i] = dy[i] - dy[i] * annularing / dr[i] # dy[i] * (dr-annularing)/dr
                 drAdj[i] = math.sqrt(dxAdj[i]*dxAdj[i]+dyAdj[i]*dyAdj[i])
                 print("[3-%2d] Keep AL : dx(%8.0lf->%8.0lf), dy(%8.0lf->%8.0lf), dr(%8.0lf->%8.0lf)\n",i,dx[i],dxAdj[i],dy[i],dyAdj[i],dr[i],drAdj[i])
             
 
-            # Distortion correction limit
+            # 歪み補正制限
             if D_limit_max>0.000001 and drAdj[i]>D_limit_max:
                 print("[4-%2d] Dist limit(max) : drAdj(%3.2f) > Dlimit_max(%d)\n",i,drAdj[i],D_limit_max)
                 dxAdj[i] = dx[i] * D_limit_max / dr[i]
@@ -763,18 +763,18 @@ class RenderingParametersForwardMathematicalModel():
                 drAdj[i] = math.sqrt(dxAdj[i]*dxAdj[i]+dyAdj[i]*dyAdj[i])
                 print("[4-%2d] Dist limit(max) : dx(%8.0lf->%8.0lf), dy(%8.0lf->%8.0lf), dr(%8.0lf->%8.0lf)\n", i,dx[i],dxAdj[i],dy[i],dyAdj[i],dr[i],drAdj[i])
 
-        #Log output
+        # ログ出力
         print("Distortion parameter adjust result\n")
         for i in range(4):
             print("[%2d] (%10.3lf, %10.3lf, %10.3lf)\n", i,dxAdj[i],dyAdj[i],drAdj[i])
 
         return ERR_ALIGNMENT_NOERR
 
-    # /**************************************************** ******************************
-    #Distortion correction parameter calculation by bilinear interpolation (interpolation ratio)
-    # ***************************************************** ***************************** /
+    # /******************************************************************************
+    # 	バイリニア補間(内分比)による歪み補正パラメータ算出
+    # ******************************************************************************/
     def CalDistCorrectByBilinear(self, pecLogFD, num, xl, yl, xlm, ylm, dx, dy, rx, ry, rdx, rdy ):
-        #Calculate maximum rectangular area
+        # 最大矩形領域を算出
         x_max=xl[0]
         x_min=xl[0]
         y_max=yl[0]
@@ -795,7 +795,7 @@ class RenderingParametersForwardMathematicalModel():
         rx[3] = x_max
         ry[3] = y_max
 
-        #Calculate the amount of distortion in the maximum rectangular area
+        # 最大矩形領域での歪み量を算出
         SA1 = np.zeros((4, 1), dtype=float)
         SA2 = np.zeros((4, 1), dtype=float)
         SA3 = np.zeros((4, 1), dtype=float)
@@ -811,7 +811,7 @@ class RenderingParametersForwardMathematicalModel():
 
         A = {	SA1[0],SA2[0],SA3[0],SA4[0],
                             SA1[1],SA2[1],SA3[1],SA4[1],
-                             SA1[2],SA2[2],SA3[2],SA4[2],
+                            SA1[2],SA2[2],SA3[2],SA4[2],
                             SA1[3],SA2[3],SA3[3],SA4[3] }
 
         rdx[0] = dx[0]
@@ -825,7 +825,7 @@ class RenderingParametersForwardMathematicalModel():
 
         ipvt = np.zeros((4*4, 1), dtype=float)
 
-        ret = decomp(4, A, condition,ipvt)
+        ret = decomp(4, A, condition, ipvt)
 
         if(ret!=0) :
             return ERR_ALIGNMENT_CAL_NEW_4POINTS
@@ -839,7 +839,7 @@ class RenderingParametersForwardMathematicalModel():
             print("rx[2],ry[2],rdx[2],rdy[2]:%12.3lf,%12.3lf,%9.3lf,%9.3lf\n",rx[2],ry[2],rdx[2],rdy[2])
             print("rx[3],ry[3],rdx[3],rdy[3]:%12.3lf,%12.3lf,%9.3lf,%9.3lf\n",rx[3],ry[3],rdx[3],rdy[3])
 
-        # Verification of distortion correction amount for calculation
+        # 演算用歪み補正量の検証
         vdx = np.zeros((4, 1), dtype=float)
         vdy = np.zeros((4, 1), dtype=float)
         for i in range(4):

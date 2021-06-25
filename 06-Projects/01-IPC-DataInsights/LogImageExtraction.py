@@ -74,5 +74,27 @@ def ExtractToDMDData():
                     dmd_image = np.zeros((dmd_mirror_width, 1024), dtype=bool)
 
 
+def ExtractToDMDDataCorrectly():
+    file_num = 1
+    sample = 16384
+    files = glob.glob("C:/Users/binh_nguyen/Documents/test_folder_1/test_ipc_log_data/domain_image/01/*.tif")
+    dmd_count = 0
+    for dmd_frame in range(122718):
+        print("DMD Frame ", dmd_frame)
+        dmd_mirror_width = 256
+        dmd_image = np.zeros((dmd_mirror_width, 1024), dtype=bool)
+
+        dmd_row = 0
+        for file in files:
+            print(file, os.path.basename(file)[:-4])
+            tif = tifffile.imread(file)
+            print(type(tif), tif.dtype, tif.shape, tif[0][0], str(int(tif[0][0])), round(tif.shape[0] / sample))
+
+            for n in range(int(16384/1024)):
+                dmd_image[dmd_row] = tif[dmd_frame][n * 1024:(n + 1) * 1024]
+                dmd_row += 1
+        tifffile.imwrite("C:/Users/binh_nguyen/Documents/test_folder_1/test_ipc_log_data/domain_image/dmd_image/dmd_image_" + str(dmd_count) + ".png", dmd_image)
+        dmd_count += 1
+
 if __name__ == "__main__":
-    ExtractProcessingPieces()
+    ExtractToDMDDataCorrectly()

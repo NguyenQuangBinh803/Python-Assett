@@ -1,1 +1,15 @@
-pecLogFD, JobId, subJobID, boradNum, revice_mode, markNum, designPos, measurePos, planePos, tranceform_mode, alignMode, planeInfo, divInfo, distControl, outAlignParam, outRenderingParam, 
+global xl
+    global yl
+    global xm
+    global ym
+
+    global xml
+    global yml
+    global dx
+    global dy
+    global dr
+    global dxAdj
+    global dyAdj
+    global dist_dx
+    global dist_dy
+    global dist_dr
