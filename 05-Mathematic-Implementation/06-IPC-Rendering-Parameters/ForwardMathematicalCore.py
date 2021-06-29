@@ -3,7 +3,11 @@ import math
 
 from ParamtersClasses import *
 from SystemErrorCode import *
+from MathCommon import *
 
+
+# I have no idea what is the uses of these paramters yet
+# Have fun with them
 xl = np.zeros((MAX_MARK_NUM, 1), dtype=float)
 yl = np.zeros((MAX_MARK_NUM, 1), dtype=float)
 xm = np.zeros((MAX_MARK_NUM, 1), dtype=float)
@@ -27,7 +31,6 @@ def llround (x) :
         return int(floor(x + 0.5))
     else:
         return int(-1.0 * floor(abs(x) + 0.5))
-
 #endif
 
 
@@ -40,26 +43,31 @@ class RenderingParametersForwardMathematicalModel():
     def __init__(self):
         pass
 
-    # calcRenderingPrmLib_calcRenderingPrm_for_div
-    def calcRenderingPrmLib_calcRenderingPrm_for_div(self, pecLogFD, JobId, subJobID, boradNum, revice_mode, markNum, designPos, measurePos, planePos, tranceform_mode, alignMode, planeInfo, divInfo, distControl, outAlignParam, outRenderingParam):
+    # /******************************************************************************
+	# Alignment parameter calculation (for split alignment) 
+    # ******************************************************************************/
+    def calcRenderingPrmLib_calcRenderingPrm_for_div(self, pecLogFD, JobId, subJobID, boradNum, revice_mode, markNum, designPos, measurePos, alignMode, planeInfo, divInfo, distControl, outAlignParam, outRenderingParam):
         '''
         int calcRenderingPrmLib_calcRenderingPrm_for_div(
-        int				pecLogFD,
-        const int		JobId,
-        const int		subJobID,
-        const int		boradNum,
-        const int		revice_mode,
-        const int		markNum,
-        const MARK_DT	designPos,				# TP609 200 split support
-        const MARK_DT 	measurePos,			# TP609 200 split support
-        const MARK_DT	planePos[2],
-        const int		/*tranceform_mode*/,
-        const int		/*alignMode*/,
-        const			PlaneAlignInfo* planeInfo,
-        const			DivAlignInfo*	divInfo,
-        const			DistControl*	distControl,
-        AlignmentParam*	outAlignParam,
-        RenderingParam*	outRenderingParam )
+            ========================== Input ==========================
+            int				pecLogFD,
+            const int		JobId,
+            const int		subJobID,
+            const int		boradNum,
+            const int		revice_mode,
+            const int		markNum,
+            const MARK_DT	designPos,				
+            const MARK_DT 	measurePos,
+            const MARK_DT	planePos[2],
+            const			PlaneAlignInfo* planeInfo,
+            const			DivAlignInfo*	divInfo,
+            const			DistControl*	distControl,
+            ========================== Input ==========================
+
+            ========================== Output ==========================
+            AlignmentParam*	outAlignParam,
+            RenderingParam*	outRenderingParam )
+            ========================== Output ==========================
         '''
 
         #Input Paramters
@@ -98,7 +106,25 @@ class RenderingParametersForwardMathematicalModel():
 
         self.CalcScalingAveArea(pecLogFD, JobId,	subJobID, boradNum,markNum, designPos,	measurePos,	divInfo, kx_ave_area, ky_ave_area )
 
-    def CalcScalingPlane(self, pecLogFD,JobId,subJobID,boradNum,markNum, designPos, measurePos,	kx_plane, ky_plane ):
+    # /******************************************************************************
+    # 	Calculation of board magnification 
+    # ******************************************************************************/
+    def CalcScalingPlane(self, pecLogFD, markNum, designPos, measurePos):
+        '''
+        int CalcScalingPlane(
+            ========================== Input ==========================
+            int					pecLogFD,
+            const int			markNum,
+            const MARK_DT		designPos[MAX_MARK_NUM],		
+            const MARK_DT 		measurePos[MAX_MARK_NUM],	
+            ========================== Input ==========================
+            
+            ========================== Output ==========================
+            double*				kx_plane,
+            double*				ky_plane )
+            ========================== Output ==========================
+        '''
+
         i = 0 
         ret = 0
         # TP609 Supports 200 divisions Local variables in the temporary area are abolished
@@ -153,10 +179,21 @@ class RenderingParametersForwardMathematicalModel():
 
         return 0
     
-
-
-
+    # /******************************************************************************
+    # 	Alignment parameter calculation core function 
+    # ******************************************************************************/
     def CalAlignmentParam(self, pecLogFD, bDistSW, pDirection,pMarkInfo,pAlignParam,pVecotorParam):
+        '''
+        int	CalAlignmentParam(
+            int						pecLogFD,
+            const bool				bDistSW,			// [Input] Forced distortion correction OFF mode (true: distortion correction ON, 
+                                                            false: distortion correction OFF)
+            const SDirection*		pDirection,			// [Input] Mark information
+            const SMarkInfo*		pMarkInfo,			// [Input] Instruction information
+            SAlignmentParam*		pAlignParam,		// [Output] Parameter information for display & mechanical control
+            SVectorParam*			pVecotorParam)		// [Output] Parameter information for vector image processing 
+        '''
+
         global xl
         global yl
         global xm
@@ -506,9 +543,29 @@ class RenderingParametersForwardMathematicalModel():
 
         return	ret
 
-
+    # /******************************************************************************
+	# 2-point batch alignment algorithm (P30, MK3 compatible)
+    # ******************************************************************************/
     def CalThetaKxKyOfsFor2Points(self, pecLogFD,    xl,    yl,    xm,    ym,     theta,     kx,     ky,     ofsx,     ofsy):
-    	#Calculation of center of gravity
+        '''
+        int CalThetaKxKyOfsFor2Points(
+            ========================== Input ==========================
+            int	pecLogFD,
+            const double xl[2],
+            const double yl[2],
+            const double xm[2],
+            const double ym[2],
+            ========================== Input ==========================
+
+            ========================== Output ==========================
+            double* theta,
+            double* kx,
+            double* ky,
+            double* ofsx,
+            double* ofsy)
+            ========================== Output ==========================
+        '''
+    	# Calculation of center of gravity
         gxl = (xl[0] + xl[1]) / 2
         gyl = (yl[0] + yl[1]) / 2
         gxm = (xm[0] + xm[1]) / 2
@@ -590,21 +647,44 @@ class RenderingParametersForwardMathematicalModel():
 
         return ERR_ALIGNMENT_NOERR
 
+    # /******************************************************************************
+    # 	XY independent magnification alignment algorithm by least squares method 
+    # 	x' = ky * cos(theta) - ky * sin(theta) + ofsx
+    # 	y' = kx * sin(theta) + ky * cos(theta) + ofsy
+    # ******************************************************************************/
     def CalThetaKxKyOfsByLSM(self, pecLogFD, num, xl, yl, xm, ym, theta, kx,ky, ofsx, ofsy):
+        '''
+        ========================== Input ==========================
+        int	pecLogFD,
+        int num,
+        const double xl[],
+        const double yl[],
+        const double xm[],
+        const double ym[],
+        ========================== Input ==========================
+
+        ========================== Output ==========================
+        double* theta,
+        double* kx,
+        double* ky,
+        double* ofsx,
+        double* ofsy)
+        ========================== Output ==========================
+        '''
+
+
     	#Internal variables
         self.xxl = np.zeros((MAX_MARK_NUM, 1), dtype=float)
         self.yyl = np.zeros((MAX_MARK_NUM, 1), dtype=float)
         self.xxm = np.zeros((MAX_MARK_NUM, 1), dtype=float)
         self.yym = np.zeros((MAX_MARK_NUM, 1), dtype=float)
         
-                    
-        #Calculate the coordinates of the design value and the center of gravity of the measured point
+        # Calculate the coordinates of the design value and the center of gravity of the measured point
         gxl = 0
         gyl = 0
         gxm = 0
         gym = 0
-        #[S] #1487 3点アライメント対応
-        tmpNum
+
         tmpNum = num
         for i in range(num):
             if xm[i] == 88888888 :
@@ -708,9 +788,27 @@ class RenderingParametersForwardMathematicalModel():
 
         return ERR_ALIGNMENT_NOERR
 
-
+    # /******************************************************************************
+    #     Adjusting distortion correction parameters 
+    # ******************************************************************************/
     def AdjustDistParam(self, pecLogFD, adjustment, annularing, D_limit_start, D_limit_max, dx, dy, dxAdj, dyAdj):
-        
+        '''
+        int AdjustDistParam(
+            ========================== Input ==========================
+            int		pecLogFD,
+            double	adjustment,
+            int		annularing,
+            int		D_limit_start,
+            int		D_limit_max,
+            ========================== Input ==========================
+
+            ========================== Output ==========================
+            double	dx[],
+            double	dy[],
+            double	dxAdj[],
+            double	dyAdj[] )
+            ========================== Output ==========================
+        '''
         if (adjustment<0.0 or 100.0<adjustment):
             print("[ER] error: Invalid dist adjustment(Adj=%5.3lf)\n",adjustment)
             return ERR_ALIGNMENT_DIST_ADJUST_ERROR
@@ -771,9 +869,30 @@ class RenderingParametersForwardMathematicalModel():
         return ERR_ALIGNMENT_NOERR
 
     # /**************************************************** ******************************
-    #Distortion correction parameter calculation by bilinear interpolation (interpolation ratio)
+    # Distortion correction parameter calculation by bilinear interpolation (interpolation ratio)
     # ***************************************************** ***************************** /
     def CalDistCorrectByBilinear(self, pecLogFD, num, xl, yl, xlm, ylm, dx, dy, rx, ry, rdx, rdy ):
+        '''
+        int CalDistCorrectByBilinear(
+            ========================== Input ==========================
+            int	pecLogFD,
+            int num,
+            const double xl[],
+            const double yl[],
+            const double xlm[],
+            const double ylm[],
+            const double dx[],
+            const double dy[],
+            ========================== Input ==========================
+
+            ========================== Output ==========================
+            double rx[],
+            double ry[],
+            double rdx[],
+            double rdy[] )
+            ========================== Output ==========================
+        '''
+
         #Calculate maximum rectangular area
         x_max=xl[0]
         x_min=xl[0]

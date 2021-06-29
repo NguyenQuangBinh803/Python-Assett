@@ -1,3 +1,15 @@
+
+
+import numpy as np
+
+LU_DEBUG_PRINT = False
+
+
+def swap(a, b):
+        temp = a
+        a = b
+        b = temp
+
 # #**************************************************** *****************************
 # [Purpose]
 # Find the triangular matrix of matrix A by Gaussian elimination.
@@ -22,18 +34,6 @@
 # The determinant det (A) can be calculated by the following formula.
 # det (A) = pivot_vector [n-1] * A [0] [0] * A [1] [1] * ... * A [n-1] [n-1]
 # # ************************************************ ****************************** /
-
-import numpy as np
-
-LU_DEBUG_PRINT = False
-
-
-def swap(a, b):
-        temp = a
-        a = b
-        b = temp
-
-
 def decomp(n, A):
         condition_number = 0
         pivot_vector = np.zeros((n, 1), dtype=float)
@@ -140,6 +140,18 @@ def decomp(n, A):
         return 0
 
 
+# /**********************************************************************************
+# [Purpose]
+# Solve # A * x = b
+# Do not use when # decomp () is in error.
+# # [Input]
+# # n = number of matrices in matrix A
+# # A = Triangular matrix (obtained by decomp ())
+# # b = Vector on the right side
+# # ipvt = pivot vector (obtained by decomp ())
+# # [Output]
+# Return the solution x of # A * x = b in b.
+# **********************************************************************************/ 
 def solve(n, A, b, pivot_vector):
 
         max_value = 0
@@ -163,7 +175,7 @@ def solve(n, A, b, pivot_vector):
                         b[i] -= A[i * n + k] * b[k]
         b[0] /= A[0]
 
-if __name__ == "__main__":
-        A = np.random.rand((5, 5), dtype=float)
-        condition_number = abs(np.linalg.det(A)) * abs(np.linalg.det(np.linalg.inv(A)))
-        decomp(5, A)
+# if __name__ == "__main__":
+#         A = np.random.rand((5, 5), dtype=float)
+#         condition_number = abs(np.linalg.det(A)) * abs(np.linalg.det(np.linalg.inv(A)))
+#         decomp(5, A)
